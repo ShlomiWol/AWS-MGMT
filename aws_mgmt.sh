@@ -12,14 +12,18 @@ do
   echo "----- 3. Load Balancers"
   echo "----- 4. VPC's"
   echo "----- 5. Route53"
+  echo "----- 6. S3"
   echo "----- 6. Exit"
   # The choice
   read -p "Insert the number you choose: " choice
 
   # Checking all the cases
+  # -------------------- Instances ----------------------
   case $choice in
   1)
     clear
+    
+    echo "Getting all the instances of our organiaztion ..."
 
     # Getting the number of running instance and of intances
     running_intances_count=`aws ec2 describe-instances --filter Name=instance-state-name,Values=running --query 'Reservations[*].Instances[*].[InstanceId, PrivateIpAddress, InstanceType, State.Name, Placement.AvailabilityZone, Tags[1].Value, Tags[0].Value]' --output text | wc -l`
@@ -34,10 +38,11 @@ do
     do
       # Menu of all instances
       echo ""
-      echo "1. To see all our instances in every state"
-      echo "2. To see all our instances per zone"
-      echo "3. To see a specific Instance"
-      echo "4. Go back to Menu"
+      echo "1. Describe - To see all our instances in every state"
+      echo "2. Describe - To see all our instances per zone"
+      echo "3. Describe - To see a specific Instance"
+      echo "4. Start/Stop - Start or stop an Instance"
+      echo "5. Go back to Menu"
       read -p "[Choice + Enter] : " key
 
       # Every case
@@ -66,10 +71,40 @@ do
         fi
        ;;
 
-      # Chau
+      # Start or Stop Instance
       4)
-        clear
+        read -p "Insert the InstanceId/Ids [if its more than one so put spcae between each one] : " instances
+        read -p "Do you want to start or stop your instances? [start/stop] : " choice
+
+	# Start Instances
+        if [ $choice == "start" ]
+        then
+            read -p "Are you sure you want to Start the instances: $instances ?[y/n]: " answer
+            if [ $answer == "y"]
+            then
+                echo "Starting Instances $instances ..."
+                aws ec2 start-instances --instance-ids $instances
+                #aws ec2 start-instances --instance-ids i-35a99cbd
+            else
+                echo "Back to Menu"
+            fi
+
+        # Stop Instances
+        elif [ $choice == "stop" ]
+               read -p "Are you sure you want to Stop the instances: $instances ?[y/n]: " answer
+            if [ $answer == "y"]
+            then
+                echo "Stopping Instances $instances ..."
+                aws ec2 stop-instances --instance-ids $instances
+            else
+                echo "Back to Menu"
+            fi
+        then
+        fi
        ;;
+      5)
+        clear
+        ;;
       esac
     done
   esac
