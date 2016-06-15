@@ -41,7 +41,7 @@ do
       echo "1. See all our instances in every state"
       echo "2. See all our instances per zone"
       echo "3. See a specific Instance"
-      echo "4. Start/Stop - Start or stop an Instance"
+      echo "4. Start/Stop - Start or Stop an Instance"
       echo "5. Go back to Menu"
       read -p "[Choice + Enter] : " key
 
@@ -136,9 +136,42 @@ do
     #--------------------- Volumes ---------------------
     2)
       clear
-      aws ec2 describe-volumes --query 'Volumes'
-      #Getting all the volumes in the organization
-    ;;
+      echo "Getting all the volumes in our organization"	
+      
+      # Getting all the volumes in the organization
+      vol_count=`aws ec2 describe-volumes --query 'Volumes[*].[VolumeId,Size,VolumeType,Attachments[0].State,State,Attachments[0].InstanceId,AvailabilityZone,CreateTime]' --output text | wc -l`
+      in_use=`aws ec2 describe-volumes --query 'Volumes[*].[VolumeId,Size,VolumeType,Attachments[0].State,State,Attachments[0].InstanceId,AvailabilityZone,CreateTime]' --output text | grep in-use | wc -l`
+      echo "We have $vol_count volumes, $in_use in use: "
+      aws ec2 describe-volumes --query 'Volumes[*].[VolumeId,Size,VolumeType,Attachments[0].State,State,Attachments[0].InstanceId,AvailabilityZone,CreateTime]' --output text
+      
+      # Show every time the menu
+      key=0
+      while [key -ne 6]
+      do
+        echo ""
+        echo "1. See a specific volume"
+        echo "2. See volumes in specific region"
+        echo "3. See state of volumes"
+        echo "4. See the atached volumes to a specific Instance"
+        echo "5. See size of volumes"
+        echo "6. Go back to Menu"	
+
+        read -p "[Choice + Enter] : " key
+      
+      
+        # Cases
+        case $key in
+        1)
+          read -p "Insert the VolumeId (If you insert more than one put space between them: " vols
+          aws ec2 describe-volumes --volume-ids $vols --query 'Volumes[*].[VolumeId,Size,VolumeType,Attachments[0].State,State,Attachments[0].InstanceId,AvailabilityZone,CreateTime]' --output text
+          ;;
+        2)
+          read -p "Insert region: " region
+          aws ec2 describe-volumes --region $region --query 'Volumes[*].[VolumeId,Size,VolumeType,Attachments[0].State,State,Attachments[0].InstanceId,AvailabilityZone,CreateTime]' --output text
+          ;;
+        esac
+      done
+      ;;
     #---------------------- End of Volumes ----------------------------
   esac
 done
