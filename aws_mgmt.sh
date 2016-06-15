@@ -3,9 +3,9 @@ do
   clear
 
   # Menu
-  echo "----- Welcome to the AWS Condole Managment-----"
+  echo "----- Welcome to AWS Condole Managment-----"
   echo ""
-  echo "----- Choose one of this options to get current weather data by: "
+  echo "----- Choose one of this options to get: "
   echo "----- 1. Instances"
   echo "----- 2. Volumes"
   echo "----- 3. Load Balancers"
@@ -23,4 +23,3 @@ do
 done
 
 aws ec2 describe-instances --query 'Reservations[*].Instances[*].[InstanceId, PrivateIpAddress, InstanceType, State.Name, Placement.AvailabilityZone, Tags[1].Value, Tags[0].Value]' --output text
-
