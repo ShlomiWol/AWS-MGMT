@@ -1,22 +1,18 @@
-function ec2describe()
-{
- aws ec2 describe-instances --query 'Reservations[*].Instances[*].[InstanceId, PrivateIpAddress, InstanceType, State.Name, Placement.AvailabilityZone, Tags[1].Value, Tags[0].Value]' --output text
-}
 
-ec2describe=`aws ec2 describe-instances --query 'Reservations[*].Instances[*].[InstanceId, PrivateIpAddress, InstanceType, State.Name, Placement.AvailabilityZone, Tags[1].Value, Tags[0].Value]' --output text > /tmp/intances`
 while :
 do
   clear
 
   # Menu
-  echo "----- Welcome to AWS Condole Managment-----"
+  echo "----- Welcome to AWS Console Managment-----"
   echo ""
   echo "----- Choose one of this options to see: "
   echo "----- 1. Instances"
   echo "----- 2. Volumes"
   echo "----- 3. Load Balancers"
   echo "----- 4. VPC's"
-  echo "----- 5. Exit"
+  echo "----- 5. Route53"
+  echo "----- 6. Exit"
   # The choice
   read -p "Insert the number you choose: " choice
 
@@ -27,43 +23,57 @@ do
 
     # Getting the number of running instance and of intances
     running_intances_count=`aws ec2 describe-instances --filter Name=instance-state-name,Values=running --query 'Reservations[*].Instances[*].[InstanceId, PrivateIpAddress, InstanceType, State.Name, Placement.AvailabilityZone, Tags[1].Value, Tags[0].Value]' --output text | wc -l`
-    echo $running_intances_count
     all_instance_count=`aws ec2 describe-instances --query 'Reservations[*].Instances[*].[InstanceId, PrivateIpAddress, InstanceType, State.Name, Placement.AvailabilityZone, Tags[1].Value, Tags[0].Value]' --output text | wc -l`
 
     # Show all the instance we have
     echo "---- We have $all_instance_count instances, $running_intances_count running: "
-    aws ec2 describe-instances --query 'Reservations[*].Instances[*].[InstanceId, PrivateIpAddress, InstanceType, State.Name, Placement.AvailabilityZone, Tags[1].Value, Tags[0].Value]' --output text | wc -l
+    aws ec2 describe-instances --query 'Reservations[*].Instances[*].[InstanceId, PrivateIpAddress, InstanceType, State.Name, Placement.AvailabilityZone, Tags[1].Value, Tags[0].Value]' --output text
 
     key=0
-    while [ $key -ne 3 ]
+    while [ $key -ne 4 ]
     do
       # Menu of all instances
-      echo "Choose: "
       echo ""
-      echo "1. To see all our running instances"
-      echo "2. To see all our stopped instances"
-      echo "3. To see all our Main Site instances"
-      echo "4. To see all our DR instances "
-      echo "5. To see a specifiv Instance"
-      echo "6. Go back to Menu"
-      read key
+      echo "1. To see all our instances in every state"
+      echo "2. To see all our instances per zone"
+      echo "3. To see a specific Instance"
+      echo "4. Go back to Menu"
+      read -p "[Choice + Enter] : " key
 
+      # Every case
       case $key in
+
+      # Instances in every state
       1)
-        echo "Running Instances:"
-        cat /tmp/intances | grep running
+        read -p "Select the state of the instance (pending | running | shutting-down | terminated | stopping | stopped ): " state
+        aws ec2 describe-instances --filter Name=instance-state-name,Values=$state --query 'Reservations[*].Instances[*].[InstanceId, PrivateIpAddress, InstanceType, State.Name, Placement.AvailabilityZone, Tags[1].Value, Tags[0].Value]' --output text
         ;;
+
+      # Zones
       2)
-        cat /tmp/intances | grep stopped
+        read -p "The Availability Zone of the instance: " zone
+        aws ec2 describe-instances --filter Name=availability-zone,Values=$zone --query 'Reservations[*].Instances[*].[InstanceId, PrivateIpAddress, InstanceType, State.Name, Placement.AvailabilityZone, Tags[1].Value, Tags[0].Value]' --output text
         ;;
+
+      # Specific instance with id or name
       3)
-        
-       clear
+        read -p "Insert the InstanceID or Instance Name: " id_name
+        if [[ $id_name == 'i-'* ]]
+        then
+            aws ec2 describe-instances --instance-ids $id_name  --query 'Reservations[*].Instances[*].[InstanceId, PrivateIpAddress, InstanceType, State.Name, Placement.AvailabilityZone, Tags[1].Value, Tags[0].Value]' --output text
+        else
+        aws ec2 describe-instances --filter Name=tag:Name,Values=$id_name --query 'Reservations[*].Instances[*].[InstanceId, PrivateIpAddress, InstanceType, State.Name, Placement.AvailabilityZone, Tags[1].Value, Tags[0].Value]' --output text
+        fi
+       ;;
+
+      # Chau
+      4)
+        clear
        ;;
       esac
-#aws ec2 describe-instances --filter Name=tag:Name,Values=STG-PUBLIC-WEB-2 --query 'Reservations[*].Instances[*].[InstanceId, PrivateIpAddress, InstanceType, State.Name, Placement.AvailabilityZone, Tags[1].Value, Tags[0].Value]' --output text
     done
   esac
 done
 #aws ec2 describe-instances --query 'Reservations[*].Instances[*].[InstanceId, PrivateIpAddress, InstanceType, State.Name, Placement.AvailabilityZone, Tags[1].Value, Tags[0].Value]' --output texta
 #aws ec2 describe-instances --filter Name=instance-state-name,Values=running --query 'Reservations[*].Instances[*].[InstanceId, PrivateIpAddress, InstanceType, State.Name, Placement.AvailabilityZone, Tags[1].Value, Tags[0].Value]' --output text
+#aws ec2 describe-instances --filter Name=tag:Name,Values=STG-PUBLIC-WEB-2 --query 'Reservations[*].Instances[*].[InstanceId, PrivateIpAddress, InstanceType, State.Name, Placement.AvailabilityZone, Tags[1].Value, Tags[0].Value]' --output text
