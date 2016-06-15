@@ -136,7 +136,7 @@ do
     #--------------------- Volumes ---------------------
     2)
       clear
-      echo "Getting all the volumes in our organization"	
+      echo "Getting all the volumes in our organization ..."
       
       # Getting all the volumes in the organization
       vol_count=`aws ec2 describe-volumes --query 'Volumes[*].[VolumeId,Size,VolumeType,Attachments[0].State,State,Attachments[0].InstanceId,AvailabilityZone,CreateTime]' --output text | wc -l`
@@ -146,7 +146,7 @@ do
       
       # Show every time the menu
       key=0
-      while [key -ne 6]
+      while [ $key -ne 6 ]
       do
         echo ""
         echo "1. See a specific volume"
@@ -167,8 +167,10 @@ do
           ;;
         2)
           read -p "Insert region: " region
-          aws ec2 describe-volumes --region $region --query 'Volumes[*].[VolumeId,Size,VolumeType,Attachments[0].State,State,Attachments[0].InstanceId,AvailabilityZone,CreateTime]' --output text
+          aws ec2 describe-volumes --filters Name=availability-zone,Values=$region --query 'Volumes[*].[VolumeId,Size,VolumeType,Attachments[0].State,State,Attachments[0].InstanceId,AvailabilityZone,CreateTime]' --output text
           ;;
+        3)
+          read -p "Insert teh state you want: " region
         esac
       done
       ;;
