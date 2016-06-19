@@ -1,7 +1,7 @@
 
 # -------------------- Instances ----------------------
     
-echo "Getting all the instances of our organiaztion ..."
+echo "Getting all the instances of our organization ..."
 
 # Getting the number of running instance and of intances
 running_intances_count=`aws ec2 describe-instances --filter Name=instance-state-name,Values=running --query 'Reservations[*].Instances[*].[InstanceId, PrivateIpAddress, InstanceType, State.Name, Placement.AvailabilityZone, Tags[1].Value, Tags[0].Value]' --output text | wc -l`
@@ -12,7 +12,7 @@ echo "---- We have $all_instance_count instances, $running_intances_count runnin
 aws ec2 describe-instances --query 'Reservations[*].Instances[*].[InstanceId, PrivateIpAddress, InstanceType, State.Name, Placement.AvailabilityZone, Tags[1].Value, Tags[0].Value]' --output text
 
 key=0
-while [ $key -ne 5 ]
+while [ $key -ne 7 ]
 do
   # Menu of all instances
   echo ""
@@ -20,7 +20,9 @@ do
   echo "2. See all our instances per zone"
   echo "3. See a specific Instance"
   echo "4. Start/Stop - Start or Stop an Instance"
-  echo "5. Go back to Menu"
+  echo "5. Create EC2 Instances"
+  echo "6. Termintate EC2 Instances"
+  echo "7. Go back to Menu"
   read -p "[Choice + Enter] : " key
 
   # Every case
