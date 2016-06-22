@@ -12,7 +12,7 @@ echo "---- We have $all_instance_count instances, $running_intances_count runnin
 aws ec2 describe-instances --query 'Reservations[*].Instances[*].[InstanceId, PrivateIpAddress, InstanceType, State.Name, Placement.AvailabilityZone, Tags[1].Value, Tags[0].Value]' --output text
 
 key=0
-while [ $key -ne 7 ]
+while [ $key -ne 8 ]
 do
   # Menu of all instances
   echo ""
@@ -20,9 +20,10 @@ do
   echo "2. See all our instances per zone"
   echo "3. See a specific Instance"
   echo "4. Start/Stop - Start or Stop an Instance"
-  echo "5. Create EC2 Instances"
-  echo "6. Termintate EC2 Instances"
-  echo "7. Go back to Menu"
+  echo "5. Create EC2 snapshot"
+  echo "6. Create EC2 Instances"
+  echo "7. Termintate EC2 Instances"
+  echo "8. Go back to Menu"
   read -p "[Choice + Enter] : " key
 
   # Every case
@@ -106,7 +107,10 @@ do
          fi
      fi
     ;;
+   
+   # Create Instance
    5)
+     echo "Not Supported in Ireland"
      clear
     ;;
    esac
